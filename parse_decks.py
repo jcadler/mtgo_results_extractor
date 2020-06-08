@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import argparse
+import sys
 
 from collections import defaultdict
 from html.parser import HTMLParser
@@ -58,9 +59,14 @@ class html_deck_parser(HTMLParser):
             self.decklist += '{} {}\n'.format(self.card_count, data)
             self.get_card_name = False
 
+def print_arch_summary(arch_sort, print_file):
+    for a in arch_sort:
+        print(a[0], a[1], file=print_file)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Parse mtgo results page into deck lists.')
     parser.add_argument('results_page')
+    parser.add_argument('--output', default='', help='File to which the archetype summary will be saved')
     args = parser.parse_args()
     results_txt = ''
     with open(args.results_page, 'r') as results_file:
@@ -73,5 +79,8 @@ if __name__ == '__main__':
         arch = input('What archetype is this?: ')
         archetype_summary[arch] += 1
     arch_sort = sorted(archetype_summary.items(), key=lambda a: a[1], reverse=True)
-    for a in arch_sort:
-        print(a[0], a[1])
+    if args.output != '':
+        with open(args.output, 'w+') as output_file:
+            print_arch_summary(arch_sort, output_file)
+    else:
+        print_arch_summary(arch_sort, sys.stdout)
