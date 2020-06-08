@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 import argparse
+import requests
 import sys
 
 from collections import defaultdict
 from html.parser import HTMLParser
+from urllib.parse import urlparse
 
 COLORS = ['White', 'Blue', 'Black', 'Red', 'Green', 'Colorless']
 
@@ -63,14 +65,22 @@ def print_arch_summary(arch_sort, print_file):
     for a in arch_sort:
         print(a[0], a[1], file=print_file)
 
+def is_url(url):
+    result = urlparse(url)
+    return result.scheme != '' and result.netloc != ''
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Parse mtgo results page into deck lists.')
-    parser.add_argument('results_page')
+    parser.add_argument('results_page', help='Local file or url from which to read the mtgo results html')
     parser.add_argument('--output', default='', help='File to which the archetype summary will be saved')
     args = parser.parse_args()
     results_txt = ''
-    with open(args.results_page, 'r') as results_file:
-        results_txt = results_file.read()
+    if is_url(args.results_page):
+        response = requests.get(args.results_page)
+        results_txt = response.text
+    else:
+        with open(args.results_page, 'r') as results_file:
+            results_txt = results_file.read()
     deck_parser = html_deck_parser()
     deck_parser.feed(results_txt)
     archetype_summary = defaultdict(int)
