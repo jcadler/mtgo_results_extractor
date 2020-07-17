@@ -7,7 +7,7 @@ from collections import defaultdict
 from html.parser import HTMLParser
 from urllib.parse import urlparse
 
-COLORS = ['White', 'Blue', 'Black', 'Red', 'Green', 'Colorless']
+COLORS = ['White (', 'Blue (', 'Black (', 'Red (', 'Green (', 'Colorless (']
 
 class html_deck_parser(HTMLParser):
 
@@ -51,7 +51,6 @@ class html_deck_parser(HTMLParser):
             self.decklist += 'Sideboard\n'
         elif self.get_category and any(x in data for x in COLORS):
             self.decks.append(self.decklist)
-            
             self.decklist = ''
             self.end_of_list = True
         elif self.get_card_count:
